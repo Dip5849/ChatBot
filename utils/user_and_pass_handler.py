@@ -55,6 +55,7 @@ def create_user(team_name,team_pass,player_names):
 
     try:
         path = f'data/team_state/{str(uid)}.json'
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         team_state_dict = {
             "team_name": team_name,
             "team_id": str(uid),
