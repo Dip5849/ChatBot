@@ -3,4 +3,5 @@ fastapi
 uvicorn
 passlib
 pyyaml
+pymongo
 bcrypt==4.0.1

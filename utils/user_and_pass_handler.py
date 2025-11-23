@@ -3,10 +3,14 @@ import uuid
 import json
 from utils.logger import CustomLogger
 from passlib.context import CryptContext
+from utils.load_db import LoadDB
 log = CustomLogger().get_logger(__file__)
 pwd_cxt = CryptContext(schemes=['bcrypt'])
 
 class hash():
+    def __init__(self):
+        self.usersDB = LoadDB("user")
+
     def bcrypt(password):
         try:
             log.info("Successfully hased the password")
@@ -14,15 +18,10 @@ class hash():
         except Exception as e:
             log.error("Failed to hash the pass", error= str(e))
     
-    def verify_pass(user_id,plain_pass):
+    def verify_pass(self,user_id,plain_pass):
         try:
-            hashed_pass = ''
-            with open("data/user_info/user.json") as f:
-                users = json.load(f)['users']
-            for user in users:
-                if user['user_id'] == user_id:
-                    hashed_pass = user["hashed_pass"]
-            if hashed_pass == '':
+            hashed_pass = self.usersDB.find_one({"user_id":user_id})['hashed_pass']
+            if hashed_pass == None:
                 return {"message":"No user found"}
                 
             result = pwd_cxt.verify(plain_pass,hashed_pass)
@@ -38,24 +37,19 @@ class hash():
         
 def create_user(team_name,team_pass,player_names):
     try:
+        usersDB = LoadDB("user")
         uid = uuid.uuid4()
-        with open("data/user_info/user.json") as f:
-            users = json.load(f)
         user_dict = {
             "user_id": str(uid),
             "user_name": team_name,
             "hashed_pass": team_pass
         }
-        users['users'].append(user_dict)
-        with open("data/user_info/user.json", 'w') as f:
-            json.dump(users,f,indent=3)
+        usersDB.insert_one(user_dict)
         log.info("Successfully created new user", team_id=uid, team_name= team_name, player_names= player_names)
     except Exception as e:
         log.error("Failed to create new user", team_name= team_name, player_names= player_names, error = str(e))
 
     try:
-        path = f'data/team_state/{str(uid)}.json'
-        os.makedirs(os.path.dirname(path), exist_ok=True)
         team_state_dict = {
             "team_name": team_name,
             "team_id": str(uid),
@@ -68,8 +62,8 @@ def create_user(team_name,team_pass,player_names):
             "wrong_guess": 0,
             "start": "False"
             }
-        with open(path,'w') as f:
-            json.dump(team_state_dict,f,indent=3)
+        team_stateDB = LoadDB("teamstate")
+        team_stateDB.insert_one(team_state_dict)
         log.info("Succefully created team state for new user", team_id=uid, team_name= team_name, player_names= player_names)
 
         return {"team_id":str(uid), "team_name": team_name}
@@ -80,7 +74,7 @@ if __name__=="__main__":
     hashed = hash.bcrypt("123456dip")
     print(hashed)
     dict = create_user('One',hashed,['dip','eshan','you'])
-    id = dict["team_id"]
+    uid = dict["team_id"]
     print(id)
-    print(hash.verify_pass(id,"123456dip"))
+    print(hash().verify_pass(user_id=uid,plain_pass="123456dip"))
         

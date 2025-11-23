@@ -19,12 +19,11 @@ class GameEngine:
     def get_next_riddle(self):
         total_riddle_num = self.riddle_config['total_riddle_num']
         if self.team_state["solved_riddle_num"] <= total_riddle_num:
-            all_riddles = list(load_riddle_library().keys())
+            all_riddles = GetRiddleNames()
             solved_riddles = self.team_state["solved_riddles"]
             unsolved_riddles = [x for x in all_riddles if x not in solved_riddles]
             current_riddle = random.choice(unsolved_riddles)
-            self.team_state["current_riddle"] = current_riddle
-            self.team_state_handler.update(self.team_state)
+            self.team_state_handler.update(set={"current_riddle" : current_riddle})
             self.log.info('Upadated current riddle for a team in TeamState', team_id= self.team_id, current_riddle=current_riddle)
             return GetRiddle(current_riddle)
         else:
@@ -33,11 +32,9 @@ class GameEngine:
     def start(self):
         if self.team_state['start'] != 'True':
             total_riddle_num = self.riddle_config['total_riddle_num']
-            all_riddles = list(load_riddle_library().keys())
+            all_riddles = GetRiddleNames()
             current_riddle = random.choice(all_riddles)
-            self.team_state["current_riddle"] = current_riddle
-            self.team_state["start"] = 'True'
-            self.team_state_handler.update(self.team_state)
+            self.team_state_handler.update(set={"start": "True", "current_riddle": current_riddle})
             self.log.info('Initiated the Treasure Hunt', team_id= self.team_id, current_riddle=current_riddle)
             return GetRiddle(current_riddle)
         else:
@@ -47,25 +44,28 @@ class GameEngine:
         riddle_id = self.team_state['current_riddle']
         result = AnswerChecker(riddle_id, your_answer)
         if result =='correct':
-            self.team_state['solved_riddle_num'] += 1
-            self.team_state['solved_riddles'].append(riddle_id)
-            self.team_state['solved_riddles_time'].append(str(datetime.now().strftime("%H:%M:%S")))
-            self.team_state_handler.update(self.team_state)
+            push_data = {
+                'solved_riddles' : riddle_id,
+                'solved_riddles_time' : str(datetime.now().strftime("%H:%M:%S"))
+            }
+            inc_data = {'solved_riddle_num':1}
+            self.team_state_handler.update(push=push_data,inc=inc_data)
+            self.log.info("Updated Team State",team_id=self.team_id, solved_riddle= riddle_id, solved_time=str(datetime.now().strftime("%H:%M:%S")))
             self.get_next_riddle()
         else:
             if self.team_state['wrong_guess']< 3:
-                self.team_state['wrong_guess'] += 1
-                self.team_state_handler.update(self.team_state)
+                inc_data = {'wrong_guess':1}
+                self.team_state_handler.update(inc = inc_data)
+                self.log.info("Updated Team State wrong guess",team_id=self.team_id, riddle_id=riddle_id)
                 return {"message": "Your answer is wrong!!!"}
             else:
-                self.team_state['wrong_guess'] = 0
-                self.team_state_handler.update(self.team_state)
-                return {"message": "Your answer is wrong!!!"}
+                self.team_state_handler.update(set={'wrong_guess':0})
+                return {"message": "You have given 3 consecutive wrong answers!!!"}
             
     def get_hints(self):
         if self.team_state['hints_taken'] < self.riddle_config['total_hint_num']:
             hint = GetHint(self.team_state['current_riddle'])
-            self.team_state['hints_taken'] += 1
+            self.team_state_handler.update(inc={'hints_taken': 1})
             self.log.info("Successfully provied the hint", team_id=self.team_id, hint= hint)
             return {"hint":hint}
         else:
@@ -78,9 +78,10 @@ class GameEngine:
             return self.team_state
         
 if __name__=="__main__":
-    team = GameEngine("96cc8273-fdbc-44fd-978a-d1d7ff4709e9")
+    team = GameEngine("ce8bd811-e25e-426c-ad84-2edd8f37")
     print(team.start())
     print(team.get_hints())
+
     print(team.verify_code("12345"))
     print(team.get_team_state())
 
