@@ -3,7 +3,7 @@ from typing import List, Optional,Literal
 
 class GameAction(BaseModel):
     team_id : str
-    command : Literal['start','code','hint','dumbelldor','team_info']
+    command : Optional[Literal['start','code','team_info']]
     code : Optional[str]
 
 class Create_User(BaseModel):
