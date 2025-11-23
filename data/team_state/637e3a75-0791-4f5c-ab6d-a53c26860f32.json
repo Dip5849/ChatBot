@@ -1,0 +1,15 @@
+{
+   "team_name": "Titanic Finders",
+   "team_id": "637e3a75-0791-4f5c-ab6d-a53c26860f32",
+   "players": [
+      "anik",
+      "anas",
+      "maruf"
+   ],
+   "hints_taken": 0,
+   "solved_riddle_num": 0,
+   "solved_riddles": [],
+   "current_riddle": "",
+   "wrong_guess": 0,
+   "start": "False"
+}

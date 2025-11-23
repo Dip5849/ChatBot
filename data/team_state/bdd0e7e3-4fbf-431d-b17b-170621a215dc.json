@@ -1,0 +1,15 @@
+{
+   "team_name": "One Pi",
+   "team_id": "bdd0e7e3-4fbf-431d-b17b-170621a215dc",
+   "players": [
+      "dip",
+      "eshan",
+      "you"
+   ],
+   "hints_taken": 0,
+   "solved_riddle_num": 0,
+   "solved_riddles": [],
+   "current_riddle": "riddle_2",
+   "wrong_guess": 0,
+   "start": "True"
+}
