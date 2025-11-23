@@ -3,10 +3,22 @@ import pydantic
 from schemas.models import *
 from src.game_engine.engine import GameEngine
 from utils.user_and_pass_handler import *
+from admin_site.admin import *
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ['*'],
+    allow_credentials= True,
+    allow_methods = ["GET"],
+    allow_headers = ["*"]
+)
+app.mount("/images", StaticFiles(directory="data/images"), name="images")
 
 @app.post("/game")
 async def game_action(payload: GameAction):
@@ -33,5 +45,9 @@ async def create_users(payload:Create_User):
 @app.post("/user/login")
 async def login(payload:LogIn):
     hash.verify_pass(payload.team_id,payload.password)
+
+@app.get("/info")
+async def all_info():
+    return fetch_all_team_info()
     
 

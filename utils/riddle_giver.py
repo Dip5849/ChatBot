@@ -1,5 +1,4 @@
 import json
-from utils.image_handler import ImageHandler
 from utils.logger import CustomLogger
 log = CustomLogger().get_logger(__file__)
 
@@ -9,7 +8,7 @@ def GetRiddle(riddle_name:str):
         riddles = json.load(f)
     riddle = riddles[riddle_name]
     image_file = riddle['image']
-    image = ImageHandler(image_file)
+    image = f'{image_file}.png'
     riddle_info = {
         "text":riddle['text'],
         "image": image

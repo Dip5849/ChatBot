@@ -1,0 +1,22 @@
+{
+   "team_name": "One",
+   "team_id": "96cc8273-fdbc-44fd-978a-d1d7ff4709e9",
+   "players": [
+      "dip",
+      "eshan",
+      "you"
+   ],
+   "hints_taken": 2,
+   "solved_riddle_num": 2,
+   "solved_riddles": [
+      "riddle_4",
+      "riddle_2"
+   ],
+   "solved_riddles_time": [
+      "14:58:26",
+      "14:58:40"
+   ],
+   "current_riddle": "riddle_3",
+   "wrong_guess": 0,
+   "start": "True"
+}

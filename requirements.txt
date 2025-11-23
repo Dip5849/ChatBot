@@ -1,7 +1,5 @@
-langchain
 structlog
 fastapi
 uvicorn
 passlib
-streamlit
 bcrypt==4.0.1

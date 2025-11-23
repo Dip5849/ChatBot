@@ -14,6 +14,11 @@
          "user_id": "bdd0e7e3-4fbf-431d-b17b-170621a215dc",
          "user_name": "One Pi",
          "hashed_pass": "$2b$12$6AI3Y5f1cT96wAFyHuJLfeA/28vj.cU30se7PRf/gR6AoVHf2vd42"
+      },
+      {
+         "user_id": "96cc8273-fdbc-44fd-978a-d1d7ff4709e9",
+         "user_name": "One",
+         "hashed_pass": "$2b$12$rlsdnL3Ddpe1VWIgz8eIwenjFGe2JSAGlCbAqqFfGfxnGJ8DbS14K"
       }
    ]
 }

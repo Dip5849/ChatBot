@@ -3,6 +3,7 @@ from utils.riddle_giver import *
 from utils.config_loader import *
 from utils.answer_checker import *
 from utils.hint_giver import *
+from datetime import datetime
 import random
 from utils.logger import CustomLogger
 
@@ -40,7 +41,7 @@ class GameEngine:
             self.log.info('Initiated the Treasure Hunt', team_id= self.team_id, current_riddle=current_riddle)
             return GetRiddle(current_riddle)
         else:
-            return {"message":"You already started the game!!!"}
+            return {"message":"You have already started the game!!!"}
         
     def verify_code(self, your_answer):
         riddle_id = self.team_state['current_riddle']
@@ -48,6 +49,7 @@ class GameEngine:
         if result =='correct':
             self.team_state['solved_riddle_num'] += 1
             self.team_state['solved_riddles'].append(riddle_id)
+            self.team_state['solved_riddles_time'].append(str(datetime.now().strftime("%H:%M:%S")))
             self.team_state_handler.update(self.team_state)
             self.get_next_riddle()
         else:
@@ -71,11 +73,12 @@ class GameEngine:
             
     def get_team_state(self):
             del self.team_state["start"]
+            del self.team_state["team_id"]
             log.info("Sucessfully provided team state", team_id= self.team_id, details = self.team_state)
             return self.team_state
         
 if __name__=="__main__":
-    team = GameEngine('bdd0e7e3-4fbf-431d-b17b-170621a215dc')
+    team = GameEngine("96cc8273-fdbc-44fd-978a-d1d7ff4709e9")
     print(team.start())
     print(team.get_hints())
     print(team.verify_code("12345"))

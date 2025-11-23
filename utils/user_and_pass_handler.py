@@ -62,6 +62,7 @@ def create_user(team_name,team_pass,player_names):
             "hints_taken": 0,
             "solved_riddle_num": 0,
             "solved_riddles": [],
+            "solved_riddles_time": [],
             "current_riddle": "",
             "wrong_guess": 0,
             "start": "False"
@@ -77,8 +78,8 @@ def create_user(team_name,team_pass,player_names):
 if __name__=="__main__":
     hashed = hash.bcrypt("123456dip")
     print(hashed)
-    dict = create_user('One Pi',hashed,['dip','eshan','you'])
+    dict = create_user('One',hashed,['dip','eshan','you'])
     id = dict["team_id"]
     print(id)
-    print(hash.verify_pass(id,"12345dip"))
+    print(hash.verify_pass(id,"123456dip"))
         
