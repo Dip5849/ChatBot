@@ -51,9 +51,9 @@ class GameEngine:
             inc_data = {'solved_riddle_num':1}
             self.team_state_handler.update(push=push_data,inc=inc_data)
             self.log.info("Updated Team State",team_id=self.team_id, solved_riddle= riddle_id, solved_time=str(datetime.now().strftime("%H:%M:%S")))
-            self.get_next_riddle()
+            return self.get_next_riddle()
         else:
-            if self.team_state['wrong_guess']< 3:
+            if self.team_state['wrong_guess']< 2:
                 inc_data = {'wrong_guess':1}
                 self.team_state_handler.update(inc = inc_data)
                 self.log.info("Updated Team State wrong guess",team_id=self.team_id, riddle_id=riddle_id)
@@ -61,6 +61,7 @@ class GameEngine:
             else:
                 self.team_state_handler.update(set={'wrong_guess':0})
                 return {"message": "You have given 3 consecutive wrong answers!!!"}
+            
             
     def get_hints(self):
         if self.team_state['hints_taken'] < self.riddle_config['total_hint_num']:
@@ -74,15 +75,16 @@ class GameEngine:
     def get_team_state(self):
             del self.team_state["start"]
             del self.team_state["team_id"]
+            del self.team_state["_id"]
             log.info("Sucessfully provided team state", team_id= self.team_id, details = self.team_state)
             return self.team_state
         
 if __name__=="__main__":
-    team = GameEngine("ce8bd811-e25e-426c-ad84-2edd8f37")
-    print(team.start())
-    print(team.get_hints())
+    team = GameEngine("62b3cc1e-c947-4e4d-a3f8-c65e731c80fc")
+    # print(team.start())
+    # print(team.get_hints())
 
-    print(team.verify_code("12345"))
+    # print(team.verify_code("12345"))
     print(team.get_team_state())
 
 

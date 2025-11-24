@@ -20,9 +20,12 @@ class hash():
     
     def verify_pass(self,user_id,plain_pass):
         try:
-            hashed_pass = self.usersDB.find_one({"user_id":user_id})['hashed_pass']
-            if hashed_pass == None:
+            user = self.usersDB.find_one({"user_id":user_id})
+            hashed_pass = ""
+            if user == None:
                 return {"message":"No user found"}
+            else:
+                hashed_pass = user['hashed_pass']
                 
             result = pwd_cxt.verify(plain_pass,hashed_pass)
 

@@ -44,7 +44,9 @@ async def create_users(payload:Create_User):
 
 @app.post("/user/login")
 async def login(payload:LogIn):
-    hash.verify_pass(payload.team_id,payload.password)
+    team_id = payload.team_id
+    password = payload.password
+    return hash().verify_pass(team_id, password)
 
 @app.get("/info")
 async def all_info():
