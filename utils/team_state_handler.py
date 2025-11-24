@@ -17,12 +17,10 @@ class TeamState:
     def update(self,set=None,push=None, inc=None, indent=3):
         if set:
             self.team_state.update_one({"team_id": self.team_id},{"$set": set})
-        elif push:
+        if push:
             self.team_state.update_one({"team_id": self.team_id},{"$push":push})
-        elif inc:
+        if inc:
             self.team_state.update_one({"team_id": self.team_id},{"$inc":inc})
-        else:
-            return None
         log.info("Updated team_state successfully", team_id= self.team_id, set=set, push= push, inc= inc)
 
 
