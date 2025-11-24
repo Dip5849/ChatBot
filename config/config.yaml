@@ -1,5 +1,5 @@
 image_base_dir:
-  path: 'data/images/'
+  path: 'https://chatbot-qy8i.onrender.com/images/'
 
 riddle_config:
   total_riddle_num: 10

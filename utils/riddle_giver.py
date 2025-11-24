@@ -1,6 +1,7 @@
-import json
+import yaml
 from utils.logger import CustomLogger
 from utils.load_db import LoadDB
+from utils.config_loader import load_config
 log = CustomLogger().get_logger(__file__)
 
 # def LoadDB(collection_name:str):
@@ -12,10 +13,11 @@ log = CustomLogger().get_logger(__file__)
 
 def GetRiddle(riddle_name:str):
     log.info('Initialized GetRiddle')
+    image_base_url = load_config()['image_base_dir']['path']
     riddles = LoadDB("riddles")
     riddle = riddles.find_one({"id": riddle_name})
     image_file = riddle['image']
-    image = f'{image_file}.png'
+    image = f'{image_base_url}{image_file}.png'
     riddle_info = {
         "text":riddle['text'],
         "image": image
@@ -31,6 +33,6 @@ def GetRiddleNames():
     
 
 if __name__== '__main__':
-    # text= GetRiddle('riddle_1')
-    # print(text)
+    text= GetRiddle('riddle_1')
+    print(text)
     print(GetRiddleNames())
