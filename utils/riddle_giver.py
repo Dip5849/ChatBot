@@ -25,6 +25,20 @@ def GetRiddle(riddle_name:str):
     log.info('Successfully returned riddle text and image', riddle_name=riddle_name, id=riddle['id'])
     return riddle_info
 
+def GetMandatoryRiddle(riddle_name:str):
+    log.info('Initialized GetRiddle')
+    image_base_url = load_config()['image_base_dir']['path']
+    riddles = LoadDB("riddles")
+    riddle = riddles.find_one({"id": riddle_name})
+    image_file = riddle['image']
+    image = f'{image_base_url}{image_file}.png'
+    riddle_info = {
+        "text":riddle['text'],
+        "image": image
+    }
+    log.info('Successfully returned riddle text and image', riddle_name=riddle_name, id=riddle['id'])
+    return riddle_info
+
 def GetRiddleNames():
     riddles = LoadDB("riddles")
     names = riddles.find({}, {"_id": 0, "id":1})

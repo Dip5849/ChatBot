@@ -5,31 +5,71 @@ from utils.answer_checker import *
 from utils.hint_giver import *
 from datetime import datetime
 import random
+import time
 from utils.logger import CustomLogger
+import traceback
 
 class GameEngine:
     def __init__(self,team_id):
         self.team_id = team_id
         self.riddle_config = load_config()['riddle_config']
         self.team_state_handler = TeamState(self.team_id)
-        self.team_state= self.team_state_handler.load()
+        # self.team_state= self.team_state_handler.load()
         self.log = CustomLogger().get_logger(__file__)
         self.log.info("Initiated GameEngine module", team_id= team_id)
     
     def get_next_riddle(self):
-        total_riddle_num = self.riddle_config['total_riddle_num']
-        if self.team_state["solved_riddle_num"] <= total_riddle_num:
-            all_riddles = GetRiddleNames()
-            solved_riddles = self.team_state["solved_riddles"]
-            unsolved_riddles = [x for x in all_riddles if x not in solved_riddles]
-            current_riddle = random.choice(unsolved_riddles)
-            self.team_state_handler.update(set={"current_riddle" : current_riddle})
-            self.log.info('Upadated current riddle for a team in TeamState', team_id= self.team_id, current_riddle=current_riddle)
-            return GetRiddle(current_riddle)
-        else:
-            {"message":"You guys solved all the riddles"}
+        try:
+            self.log.info("Initiated get_next_riddle module")
+            self.team_state = self.team_state_handler.load()
+            total_riddle_num = self.riddle_config['total_riddle_num']
+            total_normal_riddle_num = self.riddle_config['total_normal_riddle_num']
+            
+            if self.team_state["solved_riddle_num"] == total_riddle_num:
+                    return {"message":"You guys solved all the riddles"}
+            
+            self.log.info("for check", solved_riddles=self.team_state["solved_riddle_num"], total_riddle_num=total_normal_riddle_num )
+            if self.team_state["solved_riddle_num"] < total_normal_riddle_num :
+                self.log.info("for check", solved_riddles=self.team_state["solved_riddle_num"], total_riddle_num=total_normal_riddle_num )
+                self.log.info("Giving normal random riddle", team_id=self.team_id)
+                all_riddles = GetRiddleNames()
+                solved_riddles = self.team_state["solved_riddles"]
+                unsolved_riddles = [x for x in all_riddles if x not in solved_riddles]
+                current_riddle = random.choice(unsolved_riddles)
+                self.team_state_handler.update(set={"current_riddle" : current_riddle})
+                self.log.info('Upadated current riddle for a team in TeamState', team_id= self.team_id, current_riddle=current_riddle)
+                self.log.info("Provided normal random riddle", team_id=self.team_id)
+                return GetRiddle(current_riddle)
+            
+            if self.team_state["solved_riddle_num"] >= total_normal_riddle_num:
+
+                self.log.info("Giving a mandatory riddle", team_id=self.team_id)
+                index = int( self.team_state["solved_riddle_num"] - total_normal_riddle_num )
+                db = LoadDB("mandatory_riddles")
+                riddles = db.find()
+                riddle = list(riddles)[index]
+                # riddles = [x for x in riddles_db]
+                
+                current_riddle = riddle['id']
+                self.team_state_handler.update(set={"current_riddle" : current_riddle})
+                self.log.info("Provided a mandatory riddle", team_id=self.team_id, riddle={
+                    "text":riddle['text'],
+                    "image":riddle['image']
+                } )
+                path = load_config()["image_base_dir"]['path']
+                image = f"{path}{riddle['image']}"
+                return {
+                    "text":riddle['text'],
+                    "image":image
+                    }
+            return {"message":"something is wrong"}
+        except Exception as e:
+            self.log.error("error", error=str(e))
+            traceback.print_exc()
     
     def start(self):
+        self.team_state = self.team_state_handler.load()
+
         if self.team_state['start'] != 'True':
             total_riddle_num = self.riddle_config['total_riddle_num']
             all_riddles = GetRiddleNames()
@@ -41,6 +81,8 @@ class GameEngine:
             return {"message":"You have already started the game!!!"}
         
     def verify_code(self, your_answer):
+        self.team_state = self.team_state_handler.load()
+
         riddle_id = self.team_state['current_riddle']
         result = AnswerChecker(riddle_id, your_answer)
         if result =='correct':
@@ -53,7 +95,8 @@ class GameEngine:
             self.log.info("Updated Team State",team_id=self.team_id, solved_riddle= riddle_id, solved_time=str(datetime.now().strftime("%H:%M:%S")))
             return self.get_next_riddle()
         else:
-            if self.team_state['wrong_guess']< 2:
+            total_wrong_guess = self.riddle_config['total_wrong_guess']
+            if self.team_state['wrong_guess']< total_wrong_guess:
                 inc_data = {'wrong_guess':1}
                 self.team_state_handler.update(inc = inc_data)
                 self.log.info("Updated Team State wrong guess",team_id=self.team_id, riddle_id=riddle_id)
@@ -64,28 +107,37 @@ class GameEngine:
             
             
     def get_hints(self):
+        self.team_state = self.team_state_handler.load()
+
         if self.team_state['hints_taken'] < self.riddle_config['total_hint_num']:
             hint = GetHint(self.team_state['current_riddle'])
             self.team_state_handler.update(inc={'hints_taken': 1})
             self.log.info("Successfully provied the hint", team_id=self.team_id, hint= hint)
             return {"hint":hint}
         else:
+            self.team_state_handler.update(set={'hints_taken': 0})
             return{"message":"You guys used up all the hints"}
             
     def get_team_state(self):
-            del self.team_state["start"]
-            del self.team_state["team_id"]
-            del self.team_state["_id"]
-            log.info("Sucessfully provided team state", team_id= self.team_id, details = self.team_state)
-            return self.team_state
+            try:
+                db = LoadDB("teamstate")
+                info = db.find_one({"team_id": self.team_id},{
+                "_id":0,
+                "start": 0
+                })
+                self.log.info("Sucessfully provided team state", team_id= self.team_id, details = info)
+                return info
+            except Exception as e:
+                self.log.error("Something is wrong", error= str(e))
+                traceback.print_exc()
         
-if __name__=="__main__":
-    team = GameEngine("62b3cc1e-c947-4e4d-a3f8-c65e731c80fc")
-    # print(team.start())
-    # print(team.get_hints())
+# if __name__=="__main__":
+#     team = GameEngine("62b3cc1e-c947-4e4d-a3f8-c65e731c80fc")
+#     # print(team.start())
+#     # print(team.get_hints())
 
-    # print(team.verify_code("12345"))
-    print(team.get_team_state())
+#     # print(team.verify_code("12345"))
+#     print(team.get_team_state())
 
 
             

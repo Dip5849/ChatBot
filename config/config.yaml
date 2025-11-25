@@ -3,4 +3,7 @@ image_base_dir:
 
 riddle_config:
   total_riddle_num: 10
+  total_wrong_guess: 3
   total_hint_num: 3
+  total_normal_riddle_num: 7
+  toral_mandatory_riddle_num: 3
