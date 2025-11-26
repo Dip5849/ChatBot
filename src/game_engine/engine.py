@@ -5,7 +5,6 @@ from utils.answer_checker import *
 from utils.hint_giver import *
 from datetime import datetime
 import random
-import time
 from utils.logger import CustomLogger
 import traceback
 

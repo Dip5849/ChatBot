@@ -51,5 +51,9 @@ async def login(payload:LogIn):
 @app.get("/info")
 async def all_info():
     return fetch_all_team_info()
+
+@app.get("/health")
+def health():
+    return{"status":"ok"}
     
 
