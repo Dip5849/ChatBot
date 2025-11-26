@@ -1,6 +1,4 @@
-import os
-import uuid
-import json
+# import uuid
 from utils.logger import CustomLogger
 from passlib.context import CryptContext
 from utils.load_db import LoadDB
@@ -38,10 +36,9 @@ class hash():
         except Exception as e:
             log.error("Failed to verify password", error= str(e))
         
-def create_user(team_name,team_pass,player_names):
+def create_user(team_name,team_pass,player_names,uid):
     try:
         usersDB = LoadDB("user")
-        uid = uuid.uuid4()
         user_dict = {
             "user_id": str(uid),
             "user_name": team_name,

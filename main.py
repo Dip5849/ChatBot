@@ -40,7 +40,8 @@ async def create_users(payload:Create_User):
     team_name = payload.team_name
     hashed_pass = hash.bcrypt(payload.password)
     player_names = payload.players
-    return create_user(team_name, hashed_pass, player_names)
+    uid = payload.uid
+    return create_user(team_name, hashed_pass, player_names,uid)
 
 @app.post("/user/login")
 async def login(payload:LogIn):

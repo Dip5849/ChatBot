@@ -9,6 +9,7 @@ class GameAction(BaseModel):
 class Create_User(BaseModel):
     team_name: str
     players: List[str]
+    uid: str
     password: str
 
 class LogIn(BaseModel):
