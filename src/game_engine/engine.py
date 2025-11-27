@@ -10,12 +10,16 @@ import traceback
 
 class GameEngine:
     def __init__(self,team_id):
-        self.team_id = team_id
-        self.riddle_config = load_config()['riddle_config']
-        self.team_state_handler = TeamState(self.team_id)
-        # self.team_state= self.team_state_handler.load()
-        self.log = CustomLogger().get_logger(__file__)
-        self.log.info("Initiated GameEngine module", team_id= team_id)
+        try:
+            self.team_id = team_id
+            self.riddle_config = load_config()['riddle_config']
+            self.team_state_handler = TeamState(self.team_id)
+            # self.team_state= self.team_state_handler.load()
+            self.log = CustomLogger().get_logger(__file__)
+            self.log.info("Initiated GameEngine module", team_id= team_id)
+        except Exception as e:
+            self.log.error("worng", error= str(e))
+            traceback.print_exc()
     
     def get_next_riddle(self):
         try:
@@ -67,20 +71,28 @@ class GameEngine:
             traceback.print_exc()
     
     def start(self):
-        self.team_state = self.team_state_handler.load()
+        try:
+            self.team_state = self.team_state_handler.load()
+            if self.team_state ==None:
+                return {"message":"No user found"}
 
-        if self.team_state['start'] != 'True':
-            total_riddle_num = self.riddle_config['total_riddle_num']
-            all_riddles = GetRiddleNames()
-            current_riddle = random.choice(all_riddles)
-            self.team_state_handler.update(set={"start": "True", "current_riddle": current_riddle})
-            self.log.info('Initiated the Treasure Hunt', team_id= self.team_id, current_riddle=current_riddle)
-            return GetRiddle(current_riddle)
-        else:
-            return {"message":"You have already started the game!!!"}
+            if self.team_state['start'] != 'True':
+                total_riddle_num = self.riddle_config['total_riddle_num']
+                all_riddles = GetRiddleNames()
+                current_riddle = random.choice(all_riddles)
+                self.team_state_handler.update(set={"start": "True", "current_riddle": current_riddle})
+                self.log.info('Initiated the Treasure Hunt', team_id= self.team_id, current_riddle=current_riddle)
+                return GetRiddle(current_riddle)
+            else:
+                return {"message":"You have already started the game!!!"}
+        except Exception as e:
+            self.log.error("worng", error= str(e))
+            traceback.print_exc()
         
     def verify_code(self, your_answer):
         self.team_state = self.team_state_handler.load()
+        if self.team_state == None:
+            return {"message":"No user found"}
 
         riddle_id = self.team_state['current_riddle']
         result = AnswerChecker(riddle_id, your_answer)
