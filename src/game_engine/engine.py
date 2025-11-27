@@ -119,6 +119,8 @@ class GameEngine:
             
     def get_hints(self):
         self.team_state = self.team_state_handler.load()
+        if self.team_state == None:
+            return {"message":"No user found"}
 
         if self.team_state['hints_taken'] < self.riddle_config['total_hint_num']:
             hint = GetHint(self.team_state['current_riddle'])
@@ -136,6 +138,8 @@ class GameEngine:
                 "_id":0,
                 "start": 0
                 })
+                if info == None:
+                    return {"message":"No user found"}
                 self.log.info("Sucessfully provided team state", team_id= self.team_id, details = info)
                 return info
             except Exception as e:
