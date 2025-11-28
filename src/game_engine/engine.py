@@ -76,23 +76,27 @@ class GameEngine:
             if self.team_state ==None:
                 return {"message":"No user found"}
 
-            if self.team_state['start'] != 'True':
+            if not self.team_state['start']: 
                 total_riddle_num = self.riddle_config['total_riddle_num']
                 all_riddles = GetRiddleNames()
                 current_riddle = random.choice(all_riddles)
-                self.team_state_handler.update(set={"start": "True", "current_riddle": current_riddle})
+                self.team_state_handler.update(set={"start": True, "current_riddle": current_riddle})
                 self.log.info('Initiated the Treasure Hunt', team_id= self.team_id, current_riddle=current_riddle)
                 return GetRiddle(current_riddle)
             else:
                 return {"message":"You have already started the game!!!"}
         except Exception as e:
-            self.log.error("worng", error= str(e))
+            self.log.error("wrong", error= str(e))
             traceback.print_exc()
         
     def verify_code(self, your_answer):
         self.team_state = self.team_state_handler.load()
+
         if self.team_state == None:
             return {"message":"No user found"}
+        
+        if self.team_state["isPenalty"] == True:
+            return {"message":"You are in penalty period. Please wait for 30 minutes or Go to BUET cafeteria to reset the penalty."}
 
         riddle_id = self.team_state['current_riddle']
         result = AnswerChecker(riddle_id, your_answer)
@@ -104,6 +108,7 @@ class GameEngine:
             inc_data = {'solved_riddle_num':1}
             self.team_state_handler.update(push=push_data,inc=inc_data)
             self.log.info("Updated Team State",team_id=self.team_id, solved_riddle= riddle_id, solved_time=str(datetime.now().strftime("%H:%M:%S")))
+            
             return self.get_next_riddle()
         else:
             total_wrong_guess = self.riddle_config['total_wrong_guess']
@@ -111,25 +116,28 @@ class GameEngine:
                 inc_data = {'wrong_guess':1}
                 self.team_state_handler.update(inc = inc_data)
                 self.log.info("Updated Team State wrong guess",team_id=self.team_id, riddle_id=riddle_id)
+                
                 return {"message": "Your answer is wrong!!!"}
             else:
                 self.team_state_handler.update(set={'wrong_guess':0})
-                return {"message": "You have given 3 consecutive wrong answers!!!"}
+                self.team_state_handler.update(set={"isPenalty": True})
+                
+                return {"message": "You have given 3 consecutive wrong answers!!! \nPlease wait for 30 minutes befor trying again or Go to BUET cafeteria to reset the penalty."}
             
             
-    def get_hints(self):
-        self.team_state = self.team_state_handler.load()
-        if self.team_state == None:
-            return {"message":"No user found"}
+    # def get_hints(self):
+    #     self.team_state = self.team_state_handler.load()
+    #     if self.team_state == None:
+    #         return {"message":"No user found"}
 
-        if self.team_state['hints_taken'] < self.riddle_config['total_hint_num']:
-            hint = GetHint(self.team_state['current_riddle'])
-            self.team_state_handler.update(inc={'hints_taken': 1})
-            self.log.info("Successfully provied the hint", team_id=self.team_id, hint= hint)
-            return {"hint":hint}
-        else:
-            self.team_state_handler.update(set={'hints_taken': 0})
-            return{"message":"You guys used up all the hints"}
+    #     if self.team_state['hints_taken'] < self.riddle_config['total_hint_num']:
+    #         hint = GetHint(self.team_state['current_riddle'])
+    #         self.team_state_handler.update(inc={'hints_taken': 1})
+    #         self.log.info("Successfully provied the hint", team_id=self.team_id, hint= hint)
+    #         return {"hint":hint}
+    #     else:
+    #         self.team_state_handler.update(set={'hints_taken': 0})
+    #         return{"message":"You guys used up all the hints"}
             
     def get_team_state(self):
             try:

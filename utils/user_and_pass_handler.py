@@ -54,13 +54,13 @@ def create_user(team_name,team_pass,player_names,uid):
             "team_name": team_name,
             "team_id": str(uid),
             "players": [x for x in player_names],
-            "hints_taken": 0,
             "solved_riddle_num": 0,
             "solved_riddles": [],
             "solved_riddles_time": [],
             "current_riddle": "",
             "wrong_guess": 0,
-            "start": "False"
+            "start": False,
+            "isPenalty": False
             }
         team_stateDB = LoadDB("teamstate")
         team_stateDB.insert_one(team_state_dict)

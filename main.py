@@ -4,6 +4,8 @@ from schemas.models import *
 from src.game_engine.engine import GameEngine
 from utils.user_and_pass_handler import *
 from admin_site.admin import *
+from utils.riddle_giver import get_all_riddles
+from utils.team_state_handler import TeamState
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -48,6 +50,18 @@ async def login(payload:LogIn):
     team_id = payload.team_id
     password = payload.password
     return hash().verify_pass(team_id, password)
+
+@app.post("/isPenalty")
+async def is_penalty(team_id: str, isPenalty:bool):
+    team_state_handler = TeamState(team_id)
+    if team_state_handler.load() == None:
+        return {"message":"No user found"}
+    team_state_handler.update(set={"isPenalty": isPenalty})
+    return {"message": f"Penalty status updated to {isPenalty} successfully"}
+
+@app.get("/riddles")
+async def all_riddles(mandatory:bool):
+    return get_all_riddles(mandatory)
 
 @app.get("/info")
 async def all_info():

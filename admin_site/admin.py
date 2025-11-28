@@ -18,7 +18,8 @@ def fetch_all_team_info():
             "solved_riddles_time": 1,
             "current_riddle": 1,
             "wrong_guess": 1,
-            "start": 1
+            "start": 1,
+            "isPenalty": 1
             })
         info = {"info": [i for i in all_info]}
         log.info("Returned all team data", info = info)
