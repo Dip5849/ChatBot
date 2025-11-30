@@ -90,6 +90,7 @@ class GameEngine:
             traceback.print_exc()
         
     def verify_code(self, your_answer):
+        self.team_state_handler = TeamState(self.team_id)
         self.team_state = self.team_state_handler.load()
 
         if self.team_state == None:
@@ -112,7 +113,7 @@ class GameEngine:
             return self.get_next_riddle()
         else:
             total_wrong_guess = self.riddle_config['total_wrong_guess']
-            if self.team_state['wrong_guess']< total_wrong_guess:
+            if self.team_state['wrong_guess']< int(total_wrong_guess - 1):
                 inc_data = {'wrong_guess':1}
                 self.team_state_handler.update(inc = inc_data)
                 self.log.info("Updated Team State wrong guess",team_id=self.team_id, riddle_id=riddle_id)
