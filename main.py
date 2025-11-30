@@ -60,8 +60,8 @@ async def is_penalty(team_id: str, isPenalty:bool):
     return {"message": f"Penalty status updated to {isPenalty} successfully"}
 
 @app.get("/riddles")
-async def all_riddles(mandatory:bool):
-    return get_all_riddles(mandatory)
+async def all_riddles():
+    return get_all_riddles()
 
 @app.get("/info")
 async def all_info():

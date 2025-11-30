@@ -45,44 +45,41 @@ def GetRiddleNames():
     list = [r['id'] for r in names]
     return list
     
-def get_all_riddles(mandatory: bool = False):
+def get_all_riddles():
 
     log.info('Initialized get_all_riddles for mandatory riddles')
 
-    if mandatory:
-        riddles = LoadDB("mandatory_riddles")
-        all_riddles = []
-        for riddle in riddles.find({}):
-            image_base_url = load_config()['image_base_dir']['path']
-            image_file = riddle['image']
-            image = f'{image_base_url}{image_file}.png'
-            riddle_info = {
+    riddles = LoadDB("mandatory_riddles")
+    all_riddles = []
+    for riddle in riddles.find({}):
+        image_base_url = load_config()['image_base_dir']['path']
+        image_file = riddle['image']
+        image = f'{image_base_url}{image_file}.png'
+        riddle_info = {
                 "id": riddle['id'],
                 "text":riddle['text'],
                 "image": image,
                 "answer": riddle['answer']
             }
-            all_riddles.append(riddle_info)
-        log.info('Successfully returned all riddles')
+        all_riddles.append(riddle_info)
+    log.info('Successfully returned all riddles')
 
-        return {"riddles": all_riddles}
-    else:
-        riddles = LoadDB("riddles")
-        all_riddles = []
-        for riddle in riddles.find({}):
-            image_base_url = load_config()['image_base_dir']['path']
-            image_file = riddle['image']
-            image = f'{image_base_url}{image_file}.png'
-            riddle_info = {
+        
+    riddles = LoadDB("riddles")
+    for riddle in riddles.find({}):
+        image_base_url = load_config()['image_base_dir']['path']
+        image_file = riddle['image']
+        image = f'{image_base_url}{image_file}.png'
+        riddle_info = {
                 "id": riddle['id'],
                 "text":riddle['text'],
                 "image": image,
                 "answer": riddle['answer']
             }
-            all_riddles.append(riddle_info)
-        log.info('Successfully returned all riddles')
+        all_riddles.append(riddle_info)
+    log.info('Successfully returned all riddles')
 
-        return {"riddles": all_riddles}
+    return {"riddles": all_riddles}
 
 
 if __name__== '__main__':
