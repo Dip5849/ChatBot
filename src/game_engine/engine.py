@@ -84,6 +84,9 @@ class GameEngine:
                 self.log.info('Initiated the Treasure Hunt', team_id= self.team_id, current_riddle=current_riddle)
                 return GetRiddle(current_riddle)
             else:
+                current = self.team_state["current_riddle"]
+                return GetRiddle(current)
+
                 return {"message":"You have already started the game!!!"}
         except Exception as e:
             self.log.error("wrong", error= str(e))
