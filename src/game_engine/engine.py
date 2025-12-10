@@ -60,7 +60,7 @@ class GameEngine:
                     "image":riddle['image']
                 } )
                 path = load_config()["image_base_dir"]['path']
-                image = f"{path}{riddle['image']}"
+                image = f"{path}{riddle['image']}.png"
                 return {
                     "text":riddle['text'],
                     "image":image
@@ -90,7 +90,7 @@ class GameEngine:
                 except Exception as e:
                     self.log.error("wrong", error= str(e))
 
-                return {"message":"You have already started the game!!!"}
+                return GetMandatoryRiddle(current)
         except Exception as e:
             self.log.error("wrong", error= str(e))
             traceback.print_exc()
