@@ -96,41 +96,48 @@ class GameEngine:
             traceback.print_exc()
         
     def verify_code(self, your_answer):
-        self.team_state_handler = TeamState(self.team_id)
-        self.team_state = self.team_state_handler.load()
+        try:
+            self.team_state_handler = TeamState(self.team_id)
+            self.team_state = self.team_state_handler.load()
+            total_normal_riddle_num = self.riddle_config['total_normal_riddle_num']
 
-        if self.team_state == None:
-            return {"message":"No user found"}
-        
-        if self.team_state["isPenalty"] == True:
-            return {"message":"You are in penalty period. Please wait for 30 minutes or Go to BUET cafeteria to reset the penalty."}
-
-        riddle_id = self.team_state['current_riddle']
-        result = AnswerChecker(riddle_id, your_answer)
-        if result =='correct':
-            push_data = {
-                'solved_riddles' : riddle_id,
-                'solved_riddles_time' : str(datetime.now().strftime("%H:%M:%S"))
-            }
-            inc_data = {'solved_riddle_num':1}
-            self.team_state_handler.update(push=push_data,inc=inc_data)
-            self.log.info("Updated Team State",team_id=self.team_id, solved_riddle= riddle_id, solved_time=str(datetime.now().strftime("%H:%M:%S")))
+            if self.team_state == None:
+                return {"message":"No user found"}
             
-            return self.get_next_riddle()
-        else:
-            total_wrong_guess = self.riddle_config['total_wrong_guess']
-            if self.team_state['wrong_guess']< int(total_wrong_guess - 1):
-                inc_data = {'wrong_guess':1}
-                self.team_state_handler.update(inc = inc_data)
-                self.log.info("Updated Team State wrong guess",team_id=self.team_id, riddle_id=riddle_id)
-                
-                return {"message": "Your answer is wrong!!!"}
+            if self.team_state["isPenalty"] == True:
+                return {"message":"You are in penalty period. Please wait for 30 minutes or Go to BUET cafeteria to reset the penalty."}
+
+            riddle_id = self.team_state['current_riddle']
+            if self.team_state["solved_riddle_num"] < total_normal_riddle_num:
+                result = AnswerChecker(riddle_id, your_answer,"riddles")
             else:
-                self.team_state_handler.update(set={'wrong_guess':0})
-                self.team_state_handler.update(set={"isPenalty": True})
+                result = AnswerChecker(riddle_id, your_answer,"mandatory_riddles")
+
+            if result =='correct':
+                push_data = {
+                    'solved_riddles' : riddle_id,
+                    'solved_riddles_time' : str(datetime.now().strftime("%H:%M:%S"))
+                }
+                inc_data = {'solved_riddle_num':1}
+                self.team_state_handler.update(push=push_data,inc=inc_data)
+                self.log.info("Updated Team State",team_id=self.team_id, solved_riddle= riddle_id, solved_time=str(datetime.now().strftime("%H:%M:%S")))
                 
-                return {"message": "You have given 3 consecutive wrong answers!!! \nPlease wait for 30 minutes befor trying again or Go to BUET cafeteria to reset the penalty."}
-            
+                return self.get_next_riddle()
+            else:
+                total_wrong_guess = self.riddle_config['total_wrong_guess']
+                if self.team_state['wrong_guess']< int(total_wrong_guess - 1):
+                    inc_data = {'wrong_guess':1}
+                    self.team_state_handler.update(inc = inc_data)
+                    self.log.info("Updated Team State wrong guess",team_id=self.team_id, riddle_id=riddle_id)
+                    
+                    return {"message": "Your answer is wrong!!!"}
+                else:
+                    self.team_state_handler.update(set={'wrong_guess':0})
+                    self.team_state_handler.update(set={"isPenalty": True})
+                    
+                    return {"message": "You have given 3 consecutive wrong answers!!! \nPlease wait for 30 minutes befor trying again or Go to BUET cafeteria to reset the penalty."}
+        except Exception as e:
+            traceback.print_exc()
             
     # def get_hints(self):
     #     self.team_state = self.team_state_handler.load()
