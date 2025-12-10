@@ -29,7 +29,7 @@ class GameEngine:
             total_normal_riddle_num = self.riddle_config['total_normal_riddle_num']
             
             if self.team_state["solved_riddle_num"] == total_riddle_num:
-                    return {"message":"You guys solved all the riddles"}
+                    return {"message":"Congratulations guys !!!\n You have solved all 9 clues. \nThat takes sharp thinking, patience and real skill — and you proved you’ve got all of it. \n\nFor the final clue.... pls go to BUET Cafeteria."}
             
             self.log.info("for check", solved_riddles=self.team_state["solved_riddle_num"], total_riddle_num=total_normal_riddle_num )
             if self.team_state["solved_riddle_num"] < total_normal_riddle_num :

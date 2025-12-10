@@ -2,8 +2,8 @@ image_base_dir:
   path: 'https://chatbot-1-61wp.onrender.com/images/'
 
 riddle_config:
-  total_riddle_num: 10
+  total_riddle_num: 9
   total_wrong_guess: 3
   total_hint_num: 3
-  total_normal_riddle_num: 7
+  total_normal_riddle_num: 6
   toral_mandatory_riddle_num: 3
